@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberStrike FPS - Next-Gen Browser Shooter</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            50: '#f0fdf4',
+                            500: '#10b981',
+                            600: '#059669',
+                            950: '#022c22',
+                            dark: '#0a0f1d',
+                            card: '#131b2e',
+                            accent: '#00ffcc',
+                            danger: '#ff3366',
+                            warning: '#ffcc00'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #0a0f1d;
+            color: #f8fafc;
+            overflow-x: hidden;
+            user-select: none;
+        }
+        h1, h2, h3, .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0f1d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00ffcc;
+            border-radius: 4px;
+        }
+        .glow-text {
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.6), 0 0 20px rgba(0, 255, 204, 0.3);
+        }
+        .glow-box {
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+            border: 1px solid rgba(0, 255, 204, 0.4);
+        }
+        .glow-danger {
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.3);
+            border: 1px solid rgba(255, 51, 102, 0.5);
+        }
+        canvas {
+            display: block;
+            outline: none;
+        }
+        /* Scanline overlay for tactical vibe */
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.3) 50%,
+                rgba(0, 0, 0, 0.3)
+            );
+            background-size: 100% 4px;
+        }
+    </style>
+</head>
+<body class="bg-cyber-dark text-slate-100 min-h-screen flex flex-col relative">
+
+    <!-- Navigation Bar -->
+    <header class="bg-cyber-card/80 backdrop-blur-md border-b border-emerald-500/20 sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center glow-box">
+                <i class="fa-solid fa-crosshairs text-cyber-dark text-xl font-bold"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-black tracking-wider glow-text text-emerald-400">CYBER<span class="text-cyan-400">STRIKE</span></h1>
+                <p class="text-xs text-slate-400 tracking-widest uppercase">Tactical Ops v2.4</p>
+            </div>
+        </div>
+        <nav class="hidden md:flex items-center space-x-8 text-sm font-semibold tracking-wide">
+            <a href="#hero" class="hover:text-cyan-400 transition">HOME</a>
+            <a href="#features" class="hover:text-cyan-400 transition">INTEL</a>
+            <a href="#weapons" class="hover:text-cyan-400 transition">ARSENAL</a>
+            <a href="#leaderboard" class="hover:text-cyan-400 transition">GLOBAL RANKS</a>
+        </nav>
+        <div class="flex items-center space-x-4">
+            <div class="hidden sm:flex items-center space-x-2 bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-700">
+                <i class="fa-solid fa-coins text-yellow-400"></i>
+                <span id="nav-credits" class="font-bold text-yellow-400">1,250</span>
+            </div>
+            <button onclick="startGame()" class="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-cyber-dark font-black px-6 py-2.5 rounded-lg transition transform hover:scale-105 shadow-lg shadow-cyan-500/20 flex items-center space-x-2">
+                <i class="fa-solid fa-play"></i>
+                <span>DEPLOY NOW</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container (Landing Page) -->
+    <div id="landing-page" class="flex-1 flex flex-col">
+        <!-- Hero Section -->
+        <section id="hero" class="relative flex-1 flex items-center justify-center px-6 py-20 text-center overflow-hidden">
+            <!-- Background Glows -->
+            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-10 right-10 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="max-w-4xl mx-auto z-10 space-y-8">
+                <div class="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 px-4 py-2 rounded-full text-emerald-400 text-sm font-semibold tracking-wide animate-pulse">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>NEXT-GEN BROWSER FPS ENGINE ACTIVATED</span>
+                </div>
+                <h2 class="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight uppercase leading-none">
+                    ENTER THE <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-teal-300 glow-text">NEON GRID</span>
+                </h2>
+                <p class="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto font-medium">
+                    Engage hostile rogue androids in high-stakes tactical combat. Zero downloads required. Powered by WebGL & Web Audio API.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                    <button onclick="startGame()" class="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-cyber-dark font-black px-8 py-4 rounded-xl text-lg transition transform hover:scale-105 shadow-xl shadow-cyan-500/30 flex items-center justify-center space-x-3">
+                        <i class="fa-solid fa-crosshairs text-2xl"></i>
+                        <span>START MISSION</span>
+                    </button>
+                    <button onclick="openShop()" class="w-full sm:w-auto bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold px-8 py-4 rounded-xl text-lg transition flex items-center justify-center space-x-3">
+                        <i class="fa-solid fa-store text-cyan-400"></i>
+                        <span>WEAPON CACHE</span>
+                    </button>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-12 max-w-3xl mx-auto">
+                    <div class="bg-cyber-card/60 border border-slate-800 p-4 rounded-xl text-center">
+                        <div class="text-2xl sm:text-3xl font-black text-emerald-400 font-orbitron">3D</div>
+                        <div class="text-xs text-slate-400 uppercase tracking-wider mt-1">WebGL Engine</div>
+                    </div>
+                    <div class="bg-cyber-card/60 border border-slate-800 p-4 rounded-xl text-center">
+                        <div class="text-2xl sm:text-3xl font-black text-cyan-400 font-orbitron">60 FPS</div>
+                        <div class="text-xs text-slate-400 uppercase tracking-wider mt-1">Ultra Smooth</div>
+                    </div>
+                    <div class="bg-cyber-card/60 border border-slate-800 p-4 rounded-xl text-center">
+                        <div class="text-2xl sm:text-3xl font-black text-yellow-400 font-orbitron">3</div>
+                        <div class="text-xs text-slate-400 uppercase tracking-wider mt-1">Class Weapons</div>
+                    </div>
+                    <div class="bg-cyber-card/60 border border-slate-800 p-4 rounded-xl text-center">
+                        <div class="text-2xl sm:text-3xl font-black text-rose-400 font-orbitron">INF</div>
+                        <div class="text-xs text-slate-400 uppercase tracking-wider mt-1">Wave Survival</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-20 px-6 bg-slate-950/50 border-t border-slate-800/60">
+            <div class="max-w-6xl mx-auto space-y-12">
+                <div class="text-center space-y-3">
+                    <h3 class="text-xs uppercase font-bold tracking-widest text-cyan-400">Tactical Advantage</h3>
+                    <h2 class="text-3xl sm:text-4xl font-black uppercase font-orbitron">COMBAT SYSTEMS</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-cyber-card border border-slate-800/80 p-8 rounded-2xl space-y-4 hover:border-emerald-500/50 transition">
+                        <div class="w-14 h-14 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </div>
+                        <h4 class="text-xl font-bold font-orbitron">Web Audio Synthesizer</h4>
+                        <p class="text-slate-400 text-sm leading-relaxed">Dynamic gunfire, reload clicks, and enemy impact sounds generated in real-time with zero lag or external asset loading bottlenecks.</p>
+                    </div>
+                    <div class="bg-cyber-card border border-slate-800/80 p-8 rounded-2xl space-y-4 hover:border-cyan-500/50 transition">
+                        <div class="w-14 h-14 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl">
+                            <i class="fa-solid fa-shield-virus"></i>
+                        </div>
+                        <h4 class="text-xl font-bold font-orbitron">Wave Survival AI</h4>
+                        <p class="text-slate-400 text-sm leading-relaxed">Face waves of relentless neon drones. Each wave increases in enemy speed, count, and aggression level.</p>
+                    </div>
+                    <div class="bg-cyber-card border border-slate-800/80 p-8 rounded-2xl space-y-4 hover:border-yellow-500/50 transition">
+                        <div class="w-14 h-14 rounded-xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400 text-2xl">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h4 class="text-xl font-bold font-orbitron">Arsenal Customization</h4>
+                        <p class="text-slate-400 text-sm leading-relaxed">Upgrade damage, fire rate, and magazine capacity using credits earned by defeating hostile targets on the battlefield.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Weapons Section -->
+        <section id="weapons" class="py-20 px-6 max-w-6xl mx-auto w-full space-y-12">
+            <div class="text-center space-y-3">
+                <h3 class="text-xs uppercase font-bold tracking-widest text-emerald-400">Loadout Selection</h3>
+                <h2 class="text-3xl sm:text-4xl font-black uppercase font-orbitron">CHOOSE YOUR WEAPON</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Pistol -->
+                <div class="bg-cyber-card border border-slate-800 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-slate-800 text-xs px-3 py-1 rounded-bl-xl font-bold text-slate-300">STARTER</div>
+                    <div class="space-y-4">
+                        <div class="h-40 bg-slate-900/60 rounded-xl flex items-center justify-center border border-slate-800">
+                            <i class="fa-solid fa-gun text-5xl text-slate-400 group-hover:text-emerald-400 transition"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold font-orbitron">MK-1 PISTOL</h3>
+                        <p class="text-sm text-slate-400">High precision semi-automatic sidearm with unlimited standard reliability.</p>
+                    </div>
+                    <div class="pt-6 space-y-3">
+                        <div class="flex justify-between text-xs font-semibold">
+                            <span class="text-slate-400">DAMAGE: 25</span>
+                            <span class="text-slate-400">FIRE RATE: HIGH</span>
+                        </div>
+                        <button onclick="selectWeapon('pistol')" id="btn-weapon-pistol" class="w-full bg-emerald-500/20 border border-emerald-500 text-emerald-400 font-bold py-2.5 rounded-lg transition">SELECTED</button>
+                    </div>
+                </div>
+                <!-- Assault Rifle -->
+                <div class="bg-cyber-card border border-slate-800 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-cyan-500/20 text-cyan-400 text-xs px-3 py-1 rounded-bl-xl font-bold">TACTICAL</div>
+                    <div class="space-y-4">
+                        <div class="h-40 bg-slate-900/60 rounded-xl flex items-center justify-center border border-slate-800">
+                            <i class="fa-solid fa-rifle text-5xl text-slate-400 group-hover:text-cyan-400 transition"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold font-orbitron">XR-9 RIFLE</h3>
+                        <p class="text-sm text-slate-400">Fully automatic assault rifle designed for sustained suppression fire.</p>
+                    </div>
+                    <div class="pt-6 space-y-3">
+                        <div class="flex justify-between text-xs font-semibold">
+                            <span class="text-slate-400">DAMAGE: 40</span>
+                            <span class="text-slate-400">FIRE RATE: RAPID</span>
+                        </div>
+                        <button onclick="selectWeapon('rifle')" id="btn-weapon-rifle" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold py-2.5 rounded-lg transition">EQUIP</button>
+                    </div>
+                </div>
+                <!-- Shotgun -->
+                <div class="bg-cyber-card border border-slate-800 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-yellow-500/20 text-yellow-400 text-xs px-3 py-1 rounded-bl-xl font-bold">HEAVY</div>
+                    <div class="space-y-4">
+                        <div class="h-40 bg-slate-900/60 rounded-xl flex items-center justify-center border border-slate-800">
+                            <i class="fa-solid fa-bomb text-5xl text-slate-400 group-hover:text-yellow-400 transition"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold font-orbitron">STRIKER SG</h3>
+                        <p class="text-sm text-slate-400">Devastating close-range spread weapon capable of shredding multiple targets.</p>
+                    </div>
+                    <div class="pt-6 space-y-3">
+                        <div class="flex justify-between text-xs font-semibold">
+                            <span class="text-slate-400">DAMAGE: 90</span>
+                            <span class="text-slate-400">FIRE RATE: SLOW</span>
+                        </div>
+                        <button onclick="selectWeapon('shotgun')" id="btn-weapon-shotgun" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold py-2.5 rounded-lg transition">EQUIP</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Leaderboard Section -->
+        <section id="leaderboard" class="py-20 px-6 bg-slate-950/50 border-t border-slate-800/60">
+            <div class="max-w-4xl mx-auto space-y-8">
+                <div class="text-center space-y-3">
+                    <h3 class="text-xs uppercase font-bold tracking-widest text-cyan-400">Hall of Fame</h3>
+                    <h2 class="text-3xl sm:text-4xl font-black uppercase font-orbitron">GLOBAL LEADERBOARD</h2>
+                </div>
+                <div class="bg-cyber-card border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900 border-b border-slate-800 text-xs uppercase tracking-wider text-slate-400 font-orbitron">
+                                <th class="p-4">Rank</th>
+                                <th class="p-4">Operative</th>
+                                <th class="p-4">Wave Reached</th>
+                                <th class="p-4 text-right">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 text-sm font-medium">
+                            <tr class="hover:bg-slate-900/40 transition">
+                                <td class="p-4 font-bold text-yellow-400 flex items-center space-x-2"><i class="fa-solid fa-crown"></i><span>#1</span></td>
+                                <td class="p-4 font-bold text-cyan-400">Viper_99</td>
+                                <td class="p-4">Wave 24</td>
+                                <td class="p-4 text-right font-bold text-emerald-400 font-orbitron">14,250</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/40 transition">
+                                <td class="p-4 font-bold text-slate-300">#2</td>
+                                <td class="p-4 font-bold text-slate-200">CyberRonin</td>
+                                <td class="p-4">Wave 19</td>
+                                <td class="p-4 text-right font-bold text-emerald-400 font-orbitron">10,800</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/40 transition">
+                                <td class="p-4 font-bold text-amber-600">#3</td>
+                                <td class="p-4 font-bold text-slate-200">Ghost_Protocol</td>
+                                <td class="p-4">Wave 15</td>
+                                <td class="p-4 text-right font-bold text-emerald-400 font-orbitron">8,450</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/40 transition">
+                                <td class="p-4 font-bold text-slate-500">#4</td>
+                                <td class="p-4 text-slate-400">NeonSniper</td>
+                                <td class="p-4">Wave 12</td>
+                                <td class="p-4 text-right font-bold text-emerald-400 font-orbitron">6,200</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/40 transition">
+                                <td class="p-4 font-bold text-slate-500">#5</td>
+                                <td class="p-4 text-slate-400">NullPointer</td>
+                                <td class="p-4">Wave 10</td>
+                                <td class="p-4 text-right font-bold text-emerald-400 font-orbitron">5,100</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-cyber-card border-t border-slate-800 py-8 px-6 text-center text-sm text-slate-500">
+            <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>System Online & Secure - CyberStrike FPS Engine</span>
+                </div>
+                <div>&copy; 2026 CyberStrike Tactical Ops. All rights reserved.</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Game Viewport Container (Hidden by default) -->
+    <div id="game-container" class="fixed inset-0 z-50 hidden bg-black select-none">
+        <!-- 3D Canvas inserted here -->
+        <div id="canvas-container" class="absolute inset-0"></div>
+
+        <!-- Tactical HUD Overlay -->
+        <div class="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 scanlines">
+            <!-- Top HUD -->
+            <div class="flex justify-between items-start">
+                <!-- Health & Shield -->
+                <div class="bg-cyber-card/80 backdrop-blur-md border border-slate-700/80 p-4 rounded-xl space-y-2 pointer-events-auto min-w-[220px]">
+                    <div class="flex justify-between text-xs font-bold tracking-wider">
+                        <span class="text-rose-400"><i class="fa-solid fa-heart mr-1"></i> INTEGRITY</span>
+                        <span id="hud-hp" class="text-rose-400 font-orbitron">100 / 100</span>
+                    </div>
+                    <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-700">
+                        <div id="hp-bar" class="bg-rose-500 h-full w-full transition-all duration-300"></div>
+                    </div>
+                </div>
+
+                <!-- Wave & Score Info -->
+                <div class="flex space-x-4">
+                    <div class="bg-cyber-card/80 backdrop-blur-md border border-slate-700/80 px-6 py-3 rounded-xl text-center pointer-events-auto">
+                        <div class="text-xs text-slate-400 font-semibold uppercase">Wave</div>
+                        <div id="hud-wave" class="text-2xl font-black text-cyan-400 font-orbitron">1</div>
+                    </div>
+                    <div class="bg-cyber-card/80 backdrop-blur-md border border-slate-700/80 px-6 py-3 rounded-xl text-center pointer-events-auto">
+                        <div class="text-xs text-slate-400 font-semibold uppercase">Score</div>
+                        <div id="hud-score" class="text-2xl font-black text-emerald-400 font-orbitron">0</div>
+                    </div>
+                    <button onclick="exitGame()" class="bg-rose-500/20 hover:bg-rose-500/40 border border-rose-500 text-rose-400 px-4 py-3 rounded-xl pointer-events-auto transition flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-power-off text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Center Crosshair -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div id="crosshair" class="relative w-8 h-8 flex items-center justify-center transition-transform">
+                    <div class="absolute w-2 h-0.5 bg-cyan-400 -top-2"></div>
+                    <div class="absolute w-2 h-0.5 bg-cyan-400 -bottom-2"></div>
+                    <div class="absolute w-0.5 h-2 bg-cyan-400 -left-2"></div>
+                    <div class="absolute w-0.5 h-2 bg-cyan-400 -right-2"></div>
+                    <div class="w-1 h-1 bg-emerald-400 rounded-full animate-ping"></div>
+                </div>
+            </div>
+
+            <!-- Bottom HUD -->
+            <div class="flex justify-between items-end">
+                <!-- Controls Reminder -->
+                <div class="bg-cyber-card/80 backdrop-blur-md border border-slate-700/80 p-4 rounded-xl text-xs space-y-1 text-slate-400 hidden sm:block pointer-events-auto">
+                    <div><span class="text-emerald-400 font-bold">WASD / ARROWS</span> : Move</div>
+                    <div><span class="text-emerald-400 font-bold">MOUSE / DRAG</span> : Look Around</div>
+                    <div><span class="text-emerald-400 font-bold">CLICK / SPACE</span> : Fire Weapon</div>
+                    <div><span class="text-emerald-400 font-bold">R</span> : Reload</div>
+                </div>
+
+                <!-- Ammo & Weapon Display -->
+                <div class="bg-cyber-card/80 backdrop-blur-md border border-slate-700/80 p-4 rounded-xl flex items-center space-x-6 pointer-events-auto">
+                    <div>
+                        <div class="text-xs text-slate-400 font-bold uppercase" id="hud-weapon-name">MK-1 PISTOL</div>
+                        <div class="text-2xl font-black font-orbitron text-cyan-400">
+                            <span id="hud-ammo">12</span><span class="text-slate-500 text-lg"> / <span id="hud-max-ammo">12</span></span>
+                        </div>
+                    </div>
+                    <button onclick="triggerReload()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold transition flex items-center space-x-2">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>RELOAD</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Damage Flash Overlay -->
+        <div id="damage-flash" class="absolute inset-0 bg-rose-600/0 pointer-events-none transition-colors duration-200"></div>
+
+        <!-- Wave Complete / Game Over Modal -->
+        <div id="game-modal" class="absolute inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-60">
+            <div class="bg-cyber-card border border-slate-700 p-8 rounded-2xl max-w-md w-full text-center space-y-6 glow-box">
+                <div id="modal-icon" class="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500 flex items-center justify-center text-emerald-400 text-3xl mx-auto">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div class="space-y-2">
+                    <h3 id="modal-title" class="text-2xl font-black uppercase font-orbitron">MISSION ACCOMPLISHED</h3>
+                    <p id="modal-desc" class="text-slate-400 text-sm">Wave cleared successfully. Preparing next wave reinforcement...</p>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-xl grid grid-cols-2 gap-4 text-center">
+                    <div>
+                        <div class="text-xs text-slate-500 uppercase">Score Earned</div>
+                        <div id="modal-score" class="text-xl font-bold text-emerald-400 font-orbitron">450</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-500 uppercase">Credits Awarded</div>
+                        <div id="modal-credits" class="text-xl font-bold text-yellow-400 font-orbitron">+200</div>
+                    </div>
+                </div>
+                <button onclick="nextWaveOrRestart()" id="modal-btn" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-cyber-dark font-black py-3.5 rounded-xl transition shadow-lg shadow-cyan-500/20">
+                    PROCEED TO NEXT WAVE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weapon Shop / Upgrade Modal -->
+    <div id="shop-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50 px-4">
+        <div class="bg-cyber-card border border-slate-700 p-8 rounded-2xl max-w-2xl w-full space-y-6 glow-box relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-store text-cyan-400 text-2xl"></i>
+                    <h3 class="text-2xl font-black uppercase font-orbitron">TACTICAL CACHE SHOP</h3>
+                </div>
+                <button onclick="closeShop()" class="text-slate-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex items-center justify-between bg-slate-900 p-4 rounded-xl border border-slate-800">
+                <span class="text-slate-400 text-sm">Available Credits:</span>
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-coins text-yellow-400"></i>
+                    <span id="shop-credits" class="text-xl font-bold text-yellow-400 font-orbitron">1,250</span>
+                </div>
+            </div>
+            <div class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                <!-- Upgrade Item 1 -->
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                        <h4 class="font-bold text-lg font-orbitron text-emerald-400">DAMAGE AMPLIFIER</h4>
+                        <p class="text-xs text-slate-400">Increases all weapon projectile damage by +15%</p>
+                    </div>
+                    <button onclick="buyUpgrade('damage', 300)" class="bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500 text-emerald-400 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center space-x-2">
+                        <span>300</span><i class="fa-solid fa-coins text-yellow-400"></i>
+                    </button>
+                </div>
+                <!-- Upgrade Item 2 -->
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                        <h4 class="font-bold text-lg font-orbitron text-cyan-400">HIGH-CAPACITY MAGS</h4>
+                        <p class="text-xs text-slate-400">Increases weapon magazine capacity by +5 rounds</p>
+                    </div>
+                    <button onclick="buyUpgrade('ammo', 250)" class="bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500 text-cyan-400 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center space-x-2">
+                        <span>250</span><i class="fa-solid fa-coins text-yellow-400"></i>
+                    </button>
+                </div>
+                <!-- Upgrade Item 3 -->
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                        <h4 class="font-bold text-lg font-orbitron text-rose-400">NANO-MED KIT</h4>
+                        <p class="text-xs text-slate-400">Instantly restores 100% hull integrity</p>
+                    </div>
+                    <button onclick="buyUpgrade('heal', 150)" class="bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500 text-rose-400 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center space-x-2">
+                        <span>150</span><i class="fa-solid fa-coins text-yellow-400"></i>
+                    </button>
+                </div>
+            </div>
+            <button onclick="closeShop()" class="w-full bg-slate-800 hover:bg-slate-700 font-bold py-3 rounded-xl transition">RETURN TO MENU</button>
+        </div>
+    </div>
+
+    <!-- Game and Audio Logic -->
+    <script>
+        // --- Web Audio Synthesizer for zero external asset dependency ---
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            try {
+                if (type === 'shoot') {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                } else if (type === 'hit') {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.1);
+                } else if (type === 'reload') {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(900, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'damage') {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                }
+            } catch(e) { console.log('Audio error:', e); }
+        }
+
+        // --- Game State Variables ---
+        let credits = 1250;
+        let score = 0;
+        let wave = 1;
+        let playerHp = 100;
+        let maxHp = 100;
+        let selectedWeaponKey = 'pistol';
+
+        const weaponsData = {
+            pistol: { name: 'MK-1 PISTOL', damage: 25, ammo: 12, maxAmmo: 12, rate: 400 },
+            rifle: { name: 'XR-9 RIFLE', damage: 40, ammo: 30, maxAmmo: 30, rate: 150 },
+            shotgun: { name: 'STRIKER SG', damage: 85, ammo: 6, maxAmmo: 6, rate: 800 }
+        };
+
+        let currentWeapon = { ...weaponsData.pistol };
+        let isReloading = false;
+        let lastShotTime = 0;
+
+        // --- Shop & Loadout functions ---
+        function selectWeapon(key) {
+            selectedWeaponKey = key;
+            currentWeapon = { ...weaponsData[key] };
+            document.querySelectorAll('#weapons button[id^="btn-weapon-"]').forEach(btn => {
+                btn.className = "w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold py-2.5 rounded-lg transition";
+                btn.innerText = "EQUIP";
+            });
+            const selBtn = document.getElementById('btn-weapon-' + key);
+            selBtn.className = "w-full bg-emerald-500/20 border border-emerald-500 text-emerald-400 font-bold py-2.5 rounded-lg transition";
+            selBtn.innerText = "SELECTED";
+        }
+
+        function openShop() {
+            document.getElementById('shop-credits').innerText = credits.toLocaleString();
+            document.getElementById('shop-modal').classList.remove('hidden');
+            document.getElementById('shop-modal').classList.add('flex');
+        }
+
+        function closeShop() {
+            document.getElementById('shop-modal').classList.remove('flex');
+            document.getElementById('shop-modal').classList.add('hidden');
+        }
+
+        function buyUpgrade(type, cost) {
+            if (credits < cost) {
+                alert('Insufficient credits!');
+                return;
+            }
+            credits -= cost;
+            document.getElementById('shop-credits').innerText = credits.toLocaleString();
+            document.getElementById('nav-credits').innerText = credits.toLocaleString();
+            
+            if (type === 'damage') {
+                weaponsData.pistol.damage += 10;
+                weaponsData.rifle.damage += 15;
+                weaponsData.shotgun.damage += 25;
+                currentWeapon.damage += 15;
+                alert('Damage amplifier installed!');
+            } else if (type === 'ammo') {
+                weaponsData.pistol.maxAmmo += 4;
+                weaponsData.rifle.maxAmmo += 10;
+                weaponsData.shotgun.maxAmmo += 2;
+                currentWeapon.maxAmmo = weaponsData[selectedWeaponKey].maxAmmo;
+                currentWeapon.ammo = currentWeapon.maxAmmo;
+                alert('High-capacity mags equipped!');
+            } else if (type === 'heal') {
+                playerHp = 100;
+                alert('Nano-med kit applied! Integrity fully restored.');
+            }
+        }
+
+        // --- Three.js 3D First Person Shooter Engine ---
+        let scene, camera, renderer, animationFrameId;
+        let enemies = [];
+        let bullets = [];
+        let particles = [];
+        let enemiesRemaining = 0;
+        let gameActive = false;
+
+        // Player movement state
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        let mouseX = 0, mouseY = 0;
+        let targetRotationX = 0, targetRotationY = 0;
+
+        function startGame() {
+            initAudio();
+            document.getElementById('landing-page').classList.add('hidden');
+            document.getElementById('game-container').classList.remove('hidden');
+            
+            score = 0;
+            wave = 1;
+            playerHp = maxHp;
+            currentWeapon = { ...weaponsData[selectedWeaponKey] };
+            
+            updateHUD();
+            initThreeEngine();
+            startWave();
+            gameActive = true;
+        }
+
+        function exitGame() {
+            gameActive = false;
+            cancelAnimationFrame(animationFrameId);
+            document.getElementById('game-container').classList.add('hidden');
+            document.getElementById('landing-page').classList.remove('hidden');
+            const container = document.getElementById('canvas-container');
+            container.innerHTML = '';
+        }
+
+        function initThreeEngine() {
+            const container = document.getElementById('canvas-container');
+            container.innerHTML = '';
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x050811);
+            scene.fog = new THREE.FogExp2(0x050811, 0.035);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 1.6, 5);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x112233, 1.5);
+            scene.add(ambientLight);
+
+            const pointLight = new THREE.PointLight(0x00ffcc, 2, 50);
+            pointLight.position.set(0, 10, 0);
+            scene.add(pointLight);
+
+            // Arena Floor & Grid
+            const floorGeo = new THREE.PlaneGeometry(100, 100);
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x0a1020, roughness: 0.8, metalness: 0.2 });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
+
+            const grid = new THREE.GridHelper(100, 50, 0x00ffcc, 0x1f293d);
+            grid.position.y = 0.01;
+            scene.add(grid);
+
+            // Arena Walls & Pillars
+            for (let i = -50; i <= 50; i += 25) {
+                createWallPillar(i, -50);
+                createWallPillar(i, 50);
+                createWallPillar(-50, i);
+                createWallPillar(50, i);
+            }
+
+            // Event Listeners for Controls
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+            document.addEventListener('mousedown', onMouseDown);
+            document.addEventListener('mousemove', onMouseMove);
+
+            animateThree();
+        }
+
+        function createWallPillar(x, z) {
+            const pillarGeo = new THREE.BoxGeometry(4, 12, 4);
+            const pillarMat = new THREE.MeshStandardMaterial({ color: 0x111c30, roughness: 0.5 });
+            const pillar = new THREE.Mesh(pillarGeo, pillarMat);
+            pillar.position.set(x, 6, z);
+            scene.add(pillar);
+
+            // Neon accent strip on pillar
+            const stripGeo = new THREE.BoxGeometry(0.2, 12, 4.2);
+            const stripMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
+            const strip = new THREE.Mesh(stripGeo, stripMat);
+            strip.position.set(x, 6, z);
+            scene.add(strip);
+        }
+
+        function onWindowResize() {
+            if (!camera || !renderer) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onKeyDown(e) {
+            if (!gameActive) return;
+            if (e.code === 'KeyW' || e.code === 'ArrowUp') moveForward = true;
+            if (e.code === 'KeyS' || e.code === 'ArrowDown') moveBackward = true;
+            if (e.code === 'KeyA' || e.code === 'ArrowLeft') moveLeft = true;
+            if (e.code === 'KeyD' || e.code === 'ArrowRight') moveRight = true;
+            if (e.code === 'KeyR') triggerReload();
+            if (e.code === 'Space') shootWeapon();
+        }
+
+        function onKeyUp(e) {
+            if (e.code === 'KeyW' || e.code === 'ArrowUp') moveForward = false;
+            if (e.code === 'KeyS' || e.code === 'ArrowDown') moveBackward = false;
+            if (e.code === 'KeyA' || e.code === 'ArrowLeft') moveLeft = false;
+            if (e.code === 'KeyD' || e.code === 'ArrowRight') moveRight = false;
+        }
+
+        function onMouseMove(e) {
+            if (!gameActive) return;
+            const sensitivity = 0.002;
+            camera.rotation.y -= e.movementX * sensitivity;
+            
+            // Limit vertical look
+            targetRotationX -= e.movementY * sensitivity;
+            targetRotationX = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, targetRotationX));
+            camera.rotation.x = targetRotationX;
+        }
+
+        function onMouseDown(e) {
+            if (!gameActive) return;
+            if (e.button === 0) { // Left click
+                shootWeapon();
+            }
+        }
+
+        function shootWeapon() {
+            if (!gameActive || isReloading) return;
+            const now = performance.now();
+            if (now - lastShotTime < currentWeapon.rate) return;
+            if (currentWeapon.ammo <= 0) {
+                triggerReload();
+                return;
+            }
+
+            lastShotTime = now;
+            currentWeapon.ammo--;
+            updateHUD();
+            playSound('shoot');
+
+            // Recoil animation on crosshair
+            const crosshair = document.getElementById('crosshair');
+            crosshair.style.transform = 'scale(1.3)';
+            setTimeout(() => crosshair.style.transform = 'scale(1)', 100);
+
+            // Raycast for hits
+            const raycaster = new THREE.Raycaster();
+            const center = new THREE.Vector2(0, 0);
+            raycaster.setFromCamera(center, camera);
+
+            const enemyMeshes = enemies.map(e => e.mesh);
+            const intersects = raycaster.intersectObjects(enemyMeshes, true);
+
+            if (intersects.length > 0) {
+                const hitMesh = intersects[0].object;
+                const hitEnemy = enemies.find(e => e.mesh === hitMesh || e.mesh.children.includes(hitMesh));
+                if (hitEnemy) {
+                    hitEnemy.hp -= currentWeapon.damage;
+                    playSound('hit');
+                    spawnHitParticles(intersects[0].point);
+
+                    if (hitEnemy.hp <= 0) {
+                        scene.remove(hitEnemy.mesh);
+                        enemies = enemies.filter(e => e !== hitEnemy);
+                        score += 100 * wave;
+                        credits += 25;
+                        enemiesRemaining--;
+                        document.getElementById('hud-score').innerText = score;
+                        document.getElementById('nav-credits').innerText = credits;
+
+                        if (enemiesRemaining <= 0) {
+                            endWave();
+                        }
+                    }
+                }
+            }
+        }
+
+        function triggerReload() {
+            if (isReloading || currentWeapon.ammo === currentWeapon.maxAmmo) return;
+            isReloading = true;
+            playSound('reload');
+            setTimeout(() => {
+                currentWeapon.ammo = currentWeapon.maxAmmo;
+                isReloading = false;
+                updateHUD();
+            }, 1200);
+        }
+
+        function startWave() {
+            enemiesRemaining = 3 + wave * 2;
+            for (let i = 0; i < enemiesRemaining; i++) {
+                spawnEnemy();
+            }
+        }
+
+        function spawnEnemy() {
+            const group = new THREE.Group();
+            
+            // Drone Body
+            const bodyGeo = new THREE.OctahedronGeometry(1.2);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0xff3366, roughness: 0.3, emissive: 0xff0033, emissiveIntensity: 0.4 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            group.add(body);
+
+            // Floating ring
+            const ringGeo = new THREE.TorusGeometry(1.8, 0.1, 8, 24);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = Math.PI / 2;
+            group.add(ring);
+
+            // Random spawn around player
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 30 + Math.random() * 20;
+            group.position.set(Math.cos(angle) * distance, 2 + Math.random() * 3, Math.sin(angle) * distance);
+
+            scene.add(group);
+            enemies.push({
+                mesh: group,
+                hp: 50 + wave * 15,
+                speed: 0.04 + wave * 0.005
+            });
+        }
+
+        function spawnHitParticles(pos) {
+            const pGeo = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+            const pMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
+            for (let i = 0; i < 6; i++) {
+                const p = new THREE.Mesh(pGeo, pMat);
+                p.position.copy(pos);
+                scene.add(p);
+                particles.push({
+                    mesh: p,
+                    vel: new THREE.Vector3((Math.random()-0.5)*0.2, (Math.random()-0.5)*0.2, (Math.random()-0.5)*0.2),
+                    life: 20
+                });
+            }
+        }
+
+        function endWave() {
+            gameActive = false;
+            document.getElementById('modal-icon').className = "w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500 flex items-center justify-center text-emerald-400 text-3xl mx-auto";
+            document.getElementById('modal-icon').innerHTML = '<i class="fa-solid fa-trophy"></i>';
+            document.getElementById('modal-title').innerText = `WAVE ${wave} CLEARED`;
+            document.getElementById('modal-desc').innerText = "Excellent marksmanship operative. Prepare for next hostile wave.";
+            document.getElementById('modal-score').innerText = score;
+            document.getElementById('modal-credits').innerText = "+" + (wave * 100);
+            document.getElementById('modal-btn').innerText = "PROCEED TO WAVE " + (wave + 1);
+            
+            credits += wave * 100;
+            document.getElementById('nav-credits').innerText = credits;
+            
+            document.getElementById('game-modal').classList.remove('hidden');
+            document.getElementById('game-modal').classList.add('flex');
+        }
+
+        function nextWaveOrRestart() {
+            document.getElementById('game-modal').classList.remove('flex');
+            document.getElementById('game-modal').classList.add('hidden');
+            wave++;
+            document.getElementById('hud-wave').innerText = wave;
+            gameActive = true;
+            startWave();
+        }
+
+        function playerTakeDamage(dmg) {
+            playerHp -= dmg;
+            if (playerHp < 0) playerHp = 0;
+            updateHUD();
+            playSound('damage');
+
+            const flash = document.getElementById('damage-flash');
+            flash.classList.remove('bg-rose-600/0');
+            flash.classList.add('bg-rose-600/40');
+            setTimeout(() => {
+                flash.classList.remove('bg-rose-600/40');
+                flash.classList.add('bg-rose-600/0');
+            }, 200);
+
+            if (playerHp <= 0) {
+                gameOver();
+            }
+        }
+
+        function gameOver() {
+            gameActive = false;
+            document.getElementById('modal-icon').className = "w-16 h-16 rounded-full bg-rose-500/20 border border-rose-500 flex items-center justify-center text-rose-400 text-3xl mx-auto";
+            document.getElementById('modal-icon').innerHTML = '<i class="fa-solid fa-skull"></i>';
+            document.getElementById('modal-title').innerText = "MISSION FAILED";
+            document.getElementById('modal-desc').innerText = "Hull integrity compromised. Operative eliminated.";
+            document.getElementById('modal-score').innerText = score;
+            document.getElementById('modal-credits').innerText = "0";
+            document.getElementById('modal-btn').innerText = "RESTART MISSION";
+            
+            document.getElementById('game-modal').classList.remove('hidden');
+            document.getElementById('game-modal').classList.add('flex');
+            
+            // Override button action for restart
+            document.getElementById('modal-btn').onclick = function() {
+                exitGame();
+                startGame();
+            };
+        }
+
+        function updateHUD() {
+            document.getElementById('hud-ammo').innerText = currentWeapon.ammo;
+            document.getElementById('hud-max-ammo').innerText = currentWeapon.maxAmmo;
+            document.getElementById('hud-weapon-name').innerText = currentWeapon.name;
+            document.getElementById('hud-hp').innerText = `${playerHp} / ${maxHp}`;
+            document.getElementById('hp-bar').style.width = `${(playerHp / maxHp) * 100}%`;
+        }
+
+        // --- Main Game Loop ---
+        function animateThree() {
+            if (!gameActive) return;
+            animationFrameId = requestAnimationFrame(animateThree);
+
+            // Player Movement calculations
+            const moveSpeed = 0.12;
+            const dir = new THREE.Vector3();
+            camera.getWorldDirection(dir);
+            dir.y = 0;
+            dir.normalize();
+
+            const sideDir = new THREE.Vector3(-dir.z, 0, dir.x);
+
+            if (moveForward) camera.position.addScaledVector(dir, moveSpeed);
+            if (moveBackward) camera.position.addScaledVector(dir, -moveSpeed);
+            if (moveLeft) camera.position.addScaledVector(sideDir, moveSpeed);
+            if (moveRight) camera.position.addScaledVector(sideDir, -moveSpeed);
+
+            // Keep player inside boundary
+            camera.position.x = Math.max(-45, Math.min(45, camera.position.x));
+            camera.position.z = Math.max(-45, Math.min(45, camera.position.z));
+
+            // Update Enemies AI
+            enemies.forEach(enemy => {
+                enemy.mesh.lookAt(camera.position);
+                enemy.mesh.translateOnAxis(new THREE.Vector3(0, 0, 1), enemy.speed);
+
+                // Check distance to player for damage
+                const dist = enemy.mesh.position.distanceTo(camera.position);
+                if (dist < 2.5) {
+                    playerTakeDamage(5);
+                    // Knockback enemy slightly
+                    enemy.mesh.translateZ(-3);
+                }
+            });
+
+            // Update Particles
+            particles.forEach((p, index) => {
+                p.mesh.position.add(p.vel);
+                p.life--;
+                if (p.life <= 0) {
+                    scene.remove(p.mesh);
+                    particles.splice(index, 1);
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
